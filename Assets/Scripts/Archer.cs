@@ -54,7 +54,7 @@ public class Archer : MonoBehaviour
     private Transform ArrowSpawnPoint { get => _arrowSpawnPoint;}
     private GameObject ArrowPF { get => _arrowPF;}
     private Arrow CurrentArrow { get => _currentArrow; set => _currentArrow = value; }
-    private Transform ShootTargetPoint { get => _shootTargetPoint;}
+    public Transform ShootTargetPoint { get => _shootTargetPoint;}
     private Rig AimRig { get => _aimRig;}
 
     private void Awake()
@@ -160,6 +160,7 @@ public class Archer : MonoBehaviour
         if (IsAiming)
         {
             CurrentArrow = Instantiate(ArrowPF, ArrowSpawnPoint.position, ArrowSpawnPoint.rotation, ArrowSpawnPoint).GetComponent<Arrow>();
+            CurrentArrow.Archer = this;
         }
     }
 

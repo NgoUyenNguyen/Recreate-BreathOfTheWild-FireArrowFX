@@ -4,14 +4,20 @@ using UnityEngine;
 public class Arrow : StateManager<Arrow.EState>
 {
     private readonly float _maxForce = 100f;
+    private readonly float _chargeTime = 2f;
     private float _currentForce;
-    private bool startShooting;
+    private bool _startShooting;
+    private bool _isHit;
     private Rigidbody _arrowRB;
+    private Archer _archer;
 
     public float MaxForce => _maxForce;
-    public bool StartShooting { get => startShooting; set => startShooting = value; }
+    public bool StartShooting { get => _startShooting; set => _startShooting = value; }
     public float CurrentForce { get => _currentForce; set => _currentForce = value; }
     public Rigidbody ArrowRB { get => _arrowRB; set => _arrowRB ??= value; }
+    public bool IsHit { get => _isHit; private set => _isHit = value; }
+    public float ChargeTime => _chargeTime;
+    public Archer Archer { get => _archer; set => _archer = value; }
 
     public enum EState
     {
@@ -31,9 +37,26 @@ public class Arrow : StateManager<Arrow.EState>
 
     protected override void OnAwake()
     {
-        _arrowRB = GetComponent<Rigidbody>();
+        ArrowRB = GetComponent<Rigidbody>();
+        ArrowRB.isKinematic = true;
     }
 
+    private void FixedUpdate()
+    {
+        if (ArrowRB.linearVelocity != Vector3.zero)
+        {
+            transform.forward = ArrowRB.linearVelocity.normalized;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (CurrentState is Arrow_Flying flyingState)
+        {
+            IsHit = true;
+            flyingState.HitTR = collision.transform;
+        }
+    }
 
 
     protected override EState InitializeEntryState()
@@ -62,12 +85,12 @@ public class Arrow : StateManager<Arrow.EState>
 
 
 
+
+
 public class Arrow_Charging : BaseState<Arrow.EState>
 {
     private readonly Arrow _context;
     
-    private readonly float _chargeTime = 5f;
-
 
 
 
@@ -79,11 +102,11 @@ public class Arrow_Charging : BaseState<Arrow.EState>
     }
 
     public Arrow Context => _context;
-    public float ChargeTime => _chargeTime;
 
     public override void EnterState()
     {
         Debug.Log("Arrow is charging.");
+        Context.CurrentForce = 0f;
     }
 
 
@@ -110,14 +133,17 @@ public class Arrow_Charging : BaseState<Arrow.EState>
             return Arrow.EState.Ready;
         }
 
-        return Arrow.EState.Ready;
+        return Arrow.EState.Charging;
     }
 
 
 
     public override void UpdateState()
     {
-        Context.CurrentForce = Mathf.Lerp(Context.CurrentForce, Context.MaxForce, Time.deltaTime / ChargeTime);
+        Debug.Log("Charging arrow... Current Force: " + Context.CurrentForce);
+        Context.CurrentForce += (Context.MaxForce / Context.ChargeTime) * Time.deltaTime;
+
+        Debug.DrawLine(Context.transform.position, Context.Archer.ShootTargetPoint.position, Color.red);
     }
 }
 
@@ -190,22 +216,25 @@ public class Arrow_Flying : BaseState<Arrow.EState>
     private readonly Arrow _context;
 
     private Transform _hitTR;
-    
-    
-    
-    
+
+
+
+
     public Arrow_Flying(Arrow.EState key, Arrow context) : base(key)
     {
         _context = context;
     }
 
     public Arrow Context => _context;
-    private Transform HitTR { get => _hitTR; set => _hitTR = value; }
+    public Transform HitTR { get => _hitTR; set => _hitTR = value; }
 
     public override void EnterState()
     {
-        Debug.Log("Arrow is flying.");
-        Context.ArrowRB.AddForce(Context.ArrowRB.transform.forward * Context.CurrentForce, ForceMode.Impulse);
+        Context.ArrowRB.isKinematic = false;
+
+        Context.transform.forward = Context.Archer.ShootTargetPoint.position - Context.transform.position;
+        Context.ArrowRB.AddForce(Context.transform.forward * Context.CurrentForce, ForceMode.Impulse);
+        
         Context.transform.SetParent(null);
     }
     
@@ -216,6 +245,11 @@ public class Arrow_Flying : BaseState<Arrow.EState>
     public override void ExitState()
     {
         Context.transform.SetParent(HitTR);
+
+        Context.ArrowRB.linearVelocity = Vector3.zero;
+        Context.ArrowRB.angularVelocity = Vector3.zero;
+
+        Context.ArrowRB.isKinematic = true;
     }
     
     
@@ -225,6 +259,11 @@ public class Arrow_Flying : BaseState<Arrow.EState>
     
     public override Arrow.EState GenerateNextState()
     {
+        if (Context.IsHit)
+        {
+            return Arrow.EState.Hit;
+        }
+
         return Arrow.EState.Flying;
     }
     
@@ -263,9 +302,9 @@ public class Arrow_Hit : BaseState<Arrow.EState>
     {
         Debug.Log("Arrow has hit the target.");
     }
-    
-    
-    
+
+
+
     public override void ExitState()
     {
     }
