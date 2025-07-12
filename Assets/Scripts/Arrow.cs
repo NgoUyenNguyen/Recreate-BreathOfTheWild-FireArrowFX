@@ -54,6 +54,7 @@ public class Arrow : StateManager<Arrow.EState>
         if (CurrentState is Arrow_Flying flyingState)
         {
             IsHit = true;
+
             flyingState.HitTR = collision.transform;
         }
     }
@@ -75,7 +76,14 @@ public class Arrow : StateManager<Arrow.EState>
             );
     }
 
-    
+    public void StopArrow()
+    {
+        ArrowRB.linearVelocity = Vector3.zero;
+        ArrowRB.angularVelocity = Vector3.zero;
+
+        ArrowRB.isKinematic = true;
+        IsHit = true;
+    }
 }
 
 
@@ -246,10 +254,7 @@ public class Arrow_Flying : BaseState<Arrow.EState>
     {
         Context.transform.SetParent(HitTR);
 
-        Context.ArrowRB.linearVelocity = Vector3.zero;
-        Context.ArrowRB.angularVelocity = Vector3.zero;
-
-        Context.ArrowRB.isKinematic = true;
+        Context.StopArrow();
     }
     
     
@@ -272,6 +277,7 @@ public class Arrow_Flying : BaseState<Arrow.EState>
     
     public override void UpdateState()
     {
+        
     }
 }
 
