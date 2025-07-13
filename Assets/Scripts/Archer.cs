@@ -10,23 +10,28 @@ public class Archer : MonoBehaviour
 {
     [SerializeField] private ArcherVisual _visual;
     [SerializeField] private Transform _cameraPivotTransform;
+    [SerializeField] private Transform _cameraAnchorTransform;
     [SerializeField] private Transform _arrowSpawnPoint;
     [SerializeField] private Transform _shootTargetPoint;
     [SerializeField] private GameObject _arrowPF;
     [SerializeField] private CinemachineCamera _aimCamera;
     [SerializeField] private Canvas _aimUI;
     [SerializeField] private Rig _aimRig;
+    
     private PlayerInput _playerInput;
+    
     private Vector3 _moveDirection;
     private Vector2 _moveInput;
     private Quaternion _lookRotation;
     private float _animationBlend;
     private bool _isAiming;
     private float _cameraPitch;
+    
     private float _cameraYaw;
     private readonly float _bottomCameraClamp = -30f;
     private readonly float _topCameraClamp = 70f;
     private readonly float _topAimCameraClamp = 30f;
+    
     private Arrow _currentArrow;
 
 
@@ -56,6 +61,7 @@ public class Archer : MonoBehaviour
     private Arrow CurrentArrow { get => _currentArrow; set => _currentArrow = value; }
     public Transform ShootTargetPoint { get => _shootTargetPoint;}
     private Rig AimRig { get => _aimRig;}
+    private Transform CameraAnchorTransform { get => _cameraAnchorTransform;}
 
     private void Awake()
     {
@@ -85,12 +91,22 @@ public class Archer : MonoBehaviour
         }
     }
 
+
+
+    private void LateUpdate()
+    {
+        CameraPivotTransform.position = CameraAnchorTransform.position;
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
 
         Gizmos.DrawSphere(ShootTargetPoint.position, 0.1f);
     }
+
+
+
 
 
 
@@ -137,6 +153,7 @@ public class Archer : MonoBehaviour
     }
 
 
+
     private void OnAimChange(InputAction.CallbackContext context)
     {
         IsAiming = context.ReadValueAsButton();
@@ -155,6 +172,15 @@ public class Archer : MonoBehaviour
         }
     }
 
+
+
+
+
+
+
+
+
+
     private void Charge(InputAction.CallbackContext context)
     {
         if (IsAiming)
@@ -163,6 +189,8 @@ public class Archer : MonoBehaviour
             CurrentArrow.Archer = this;
         }
     }
+
+
 
     private void Shoot(InputAction.CallbackContext context)
     {
@@ -173,7 +201,6 @@ public class Archer : MonoBehaviour
             CurrentArrow.StartShooting = true;
         }
     }
-
 
 
 
@@ -192,6 +219,8 @@ public class Archer : MonoBehaviour
         AnimationBlend = Mathf.Lerp(AnimationBlend, targetVelocity, Time.deltaTime * speedChangeRate);
         Visual.MoveVisual(AnimationBlend);
     }
+
+
 
     private void Look()
     {
@@ -213,6 +242,11 @@ public class Archer : MonoBehaviour
     }
 
     
+
+
+
+
+
     private Vector3 GetTargetShootPoint()
     {
         Vector2 sceenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
@@ -229,12 +263,8 @@ public class Archer : MonoBehaviour
     }
 
 
-    private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
-    {
-        if (lfAngle < -360f) lfAngle += 360f;
-        if (lfAngle > 360f) lfAngle -= 360f;
-        return Mathf.Clamp(lfAngle, lfMin, lfMax);
-    }
+
+
 
     private void ShowAimUI()
     {
@@ -247,4 +277,18 @@ public class Archer : MonoBehaviour
     }
 
 
+
+
+
+
+
+
+
+
+    public static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+    {
+        if (lfAngle < -360f) lfAngle += 360f;
+        if (lfAngle > 360f) lfAngle -= 360f;
+        return Mathf.Clamp(lfAngle, lfMin, lfMax);
+    }
 }
