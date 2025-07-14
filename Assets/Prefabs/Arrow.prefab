@@ -9786,7 +9786,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4573618859692792515}
@@ -19676,7 +19676,7 @@ ParticleSystem:
   emitterVelocityMode: 1
   looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -29480,7 +29480,7 @@ ParticleSystemForceField:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4543084209591420975}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Parameters:
     m_Shape: 0
     m_StartRange: 0
@@ -31368,8 +31368,8 @@ ParticleSystem:
       maxGradient:
         serializedVersion: 2
         key0: {r: 0, g: 0.20348907, b: 1, a: 0}
-        key1: {r: 1, g: 0, b: 0, a: 1}
-        key2: {r: 0, g: 0, b: 0, a: 1}
+        key1: {r: 1, g: 0, b: 0, a: 0.019607844}
+        key2: {r: 0, g: 0, b: 0, a: 0.039215688}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
         key5: {r: 0, g: 0, b: 0, a: 0}
@@ -31384,7 +31384,7 @@ ParticleSystem:
         ctime6: 0
         ctime7: 0
         atime0: 0
-        atime1: 21048
+        atime1: 65535
         atime2: 65535
         atime3: 0
         atime4: 0
@@ -31394,7 +31394,7 @@ ParticleSystem:
         m_Mode: 0
         m_ColorSpace: 0
         m_NumColorKeys: 2
-        m_NumAlphaKeys: 3
+        m_NumAlphaKeys: 2
       minGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -39734,6 +39734,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6374915621329734106}
+  - component: {fileID: 5792612830358909708}
   m_Layer: 0
   m_Name: Effects
   m_TagString: Untagged
@@ -39761,6 +39762,28 @@ Transform:
   - {fileID: 8795024671024968450}
   m_Father: {fileID: 2111833843729617676}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5792612830358909708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7728569864197664378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb03335483f2c4e4db6701b001ba2fb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _flashCharging: {fileID: 3218260776052962423}
+  _dustCharging: {fileID: 2693603488037890991}
+  _circleCharging: {fileID: 1012674324165818880}
+  _forceFieldCharging: {fileID: 4600949605719056366}
+  _popReady: {fileID: 3943595638583005390}
+  _flashReady: {fileID: 7268896910690061907}
+  _lightReady: {fileID: 2171631575663739059}
+  _bustFlying: {fileID: 8516976270276076170}
+  _explosionHit: {fileID: 3921021164006544019}
+  _dustHit: {fileID: 168177224697273518}
 --- !u!1 &8294297452807843856
 GameObject:
   m_ObjectHideFlags: 0
@@ -39809,6 +39832,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd021c670f1f7194cb19207ff9fa2e4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _arrowEffect: {fileID: 5792612830358909708}
 --- !u!54 &9139524086933611763
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -39856,7 +39880,7 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.02
-  m_Height: 0.8
+  m_Height: 0.7
   m_Direction: 2
   m_Center: {x: 0, y: 0, z: 0.45}
 --- !u!1 &8648359851001572087

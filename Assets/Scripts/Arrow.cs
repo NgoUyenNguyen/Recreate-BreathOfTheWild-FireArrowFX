@@ -3,12 +3,14 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Arrow : StateManager<Arrow.EState>
 {
+    [SerializeField] private ArrowEffect _arrowEffect;
     private readonly float _maxForce = 100f;
-    private readonly float _chargeTime = 2f;
+    private readonly float _chargeTime = 1.5f;
     private float _currentForce;
     private bool _startShooting;
     private bool _isHit;
     private Rigidbody _arrowRB;
+    private Collider _arrowCL;
     private Archer _archer;
 
     public float MaxForce => _maxForce;
@@ -18,6 +20,8 @@ public class Arrow : StateManager<Arrow.EState>
     public bool IsHit { get => _isHit; private set => _isHit = value; }
     public float ChargeTime => _chargeTime;
     public Archer Archer { get => _archer; set => _archer = value; }
+    public ArrowEffect ArrowEffect { get => _arrowEffect;}
+    public Collider ArrowCL { get => _arrowCL; set => _arrowCL ??= value; }
 
     public enum EState
     {
@@ -39,6 +43,9 @@ public class Arrow : StateManager<Arrow.EState>
     {
         ArrowRB = GetComponent<Rigidbody>();
         ArrowRB.isKinematic = true;
+
+        ArrowCL = GetComponent<Collider>();
+        ArrowCL.enabled = false;
     }
 
     private void FixedUpdate()
@@ -113,8 +120,9 @@ public class Arrow_Charging : BaseState<Arrow.EState>
 
     public override void EnterState()
     {
-        Debug.Log("Arrow is charging.");
         Context.CurrentForce = 0f;
+
+        Context.ArrowEffect.PlayChargingEffects();
     }
 
 
@@ -179,15 +187,17 @@ public class Arrow_Ready : BaseState<Arrow.EState>
     
     public override void EnterState()
     {
-        Debug.Log("Arrow is ready to shoot.");
+        Context.ArrowEffect.PlayReadyEffects();
     }
 
 
 
     public override void ExitState()
     {
+        Context.ArrowCL.enabled = false;
+
     }
-    
+
 
 
     public override Arrow.EState GenerateNextState()
@@ -238,12 +248,25 @@ public class Arrow_Flying : BaseState<Arrow.EState>
 
     public override void EnterState()
     {
+        Context.ArrowCL.enabled = true;
+
+
         Context.ArrowRB.isKinematic = false;
 
         Context.transform.forward = Context.Archer.ShootTargetPoint.position - Context.transform.position;
         Context.ArrowRB.AddForce(Context.transform.forward * Context.CurrentForce, ForceMode.Impulse);
         
         Context.transform.SetParent(null);
+
+
+
+        Context.ArrowEffect.StopChargingEffect();
+        Context.ArrowEffect.StopReadyEffects();
+        
+        if (Context.CurrentForce >= Context.MaxForce)
+        {
+            Context.ArrowEffect.PlayFlyingEffects();
+        }
     }
     
     
@@ -252,6 +275,8 @@ public class Arrow_Flying : BaseState<Arrow.EState>
     
     public override void ExitState()
     {
+        Context.ArrowCL.enabled = false;
+
         Context.transform.SetParent(HitTR);
 
         Context.StopArrow();
@@ -306,7 +331,11 @@ public class Arrow_Hit : BaseState<Arrow.EState>
     
     public override void EnterState()
     {
-        Debug.Log("Arrow has hit the target.");
+        if (Context.CurrentForce >= Context.MaxForce)
+        {
+            Context.ArrowEffect.PlayHitEffects();
+        }
+       
     }
 
 
