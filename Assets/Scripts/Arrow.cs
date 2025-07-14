@@ -1,6 +1,7 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody), typeof(Collider), typeof(CinemachineImpulseSource))]
 public class Arrow : StateManager<Arrow.EState>
 {
     [SerializeField] private ArrowEffect _arrowEffect;
@@ -11,6 +12,7 @@ public class Arrow : StateManager<Arrow.EState>
     private bool _isHit;
     private Rigidbody _arrowRB;
     private Collider _arrowCL;
+    private CinemachineImpulseSource _impulseSource;
     private Archer _archer;
 
     public float MaxForce => _maxForce;
@@ -22,6 +24,7 @@ public class Arrow : StateManager<Arrow.EState>
     public Archer Archer { get => _archer; set => _archer = value; }
     public ArrowEffect ArrowEffect { get => _arrowEffect;}
     public Collider ArrowCL { get => _arrowCL; set => _arrowCL ??= value; }
+    public CinemachineImpulseSource ImpulseSource { get => _impulseSource; set => _impulseSource ??= value; }
 
     public enum EState
     {
@@ -46,6 +49,8 @@ public class Arrow : StateManager<Arrow.EState>
 
         ArrowCL = GetComponent<Collider>();
         ArrowCL.enabled = false;
+
+        ImpulseSource = GetComponent<CinemachineImpulseSource>();
     }
 
     private void FixedUpdate()
@@ -266,6 +271,8 @@ public class Arrow_Flying : BaseState<Arrow.EState>
         if (Context.CurrentForce >= Context.MaxForce)
         {
             Context.ArrowEffect.PlayFlyingEffects();
+
+            Context.ImpulseSource.GenerateImpulse(Vector3.up * .1f);
         }
     }
     
